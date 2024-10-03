@@ -1,0 +1,13 @@
+site_name: OtelPy
+repo_url: https://github.com/lucasBritoo/otelpy
+repo_name: lucasBritoo/otelpy
+edit_uri: tree/main/docs
+
+theme:
+  name: material
+
+plugins:
+- mkdocstrings:
+    handlers:
+      python:
+        paths: [otelpy]
