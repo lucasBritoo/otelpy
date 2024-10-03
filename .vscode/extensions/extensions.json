@@ -1,0 +1,10 @@
+{
+    "extensions": [
+        "Gruntfuggly.todo-tree",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "mutantdino.resourcemonitor",
+        "bierner.markdown-preview-github-styles",
+        "bierner.markdown-mermaid"
+    ]
+}

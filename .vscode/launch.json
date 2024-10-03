@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "tools",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "tools",
+            "cwd": "${workspaceFolder}/cookbook",
+        }
+    ]
+}
