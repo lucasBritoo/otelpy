@@ -1,0 +1,79 @@
+services:
+
+  prometheus:
+    container_name: prometheus-service
+    build:
+      context: utilities/prometheus
+    cpus: 0.1
+    mem_limit: 100m
+    ports:
+      - 9090:9090
+    restart: always
+    networks:
+      - brito-net
+    volumes:
+      - prometheus_data:/data/prometheus
+
+  tempo:
+    container_name: tempo-service
+    build:
+      context: utilities/tempo
+    cpus: 0.1
+    mem_limit: 100m
+    ports:
+      - 3200:3200   #tempo api
+    restart: always
+    networks:
+      - brito-net
+    volumes:
+      - tempo_data:/tmp/tempo
+  
+  grafana:
+    container_name: grafana
+    build:
+      context: utilities/grafana
+    cpus: 0.3
+    mem_limit: 500m
+    ports:
+      - 3000:3000
+    restart: always
+    networks:
+      - brito-net
+    volumes:
+      - grafana_data:/var/lib/grafana
+  
+  loki:
+    container_name: loki-service
+    build:
+      context: utilities/loki
+    cpus: 0.1
+    mem_limit: 100m
+    ports:
+      - 3100:3100   #otlp http
+      - 9095:9095   #otlp grpc
+    restart: always
+    networks:
+      - brito-net
+
+  otelcollector:
+    container_name: otelcollector-service
+    cpus: 0.1
+    mem_limit: 100m
+    build:
+      context: utilities/otelcollector
+    ports:
+      - 8888:8888   # Prometheus metrics exposed by the Collector
+      - 8889:8889   # Prometheus exporter metrics
+      - 13133:13133 # health_check extension (/health/status)
+      - 4317:4317
+    restart: always
+    networks:
+      - brito-net
+
+networks:
+  brito-net:
+    external: true
+volumes:
+  tempo_data:
+  prometheus_data:
+  grafana_data:

@@ -1,0 +1,26 @@
+server:
+  http_listen_port: 3200    # tempo api
+
+distributor:
+  receivers:
+      otlp:
+        protocols:
+          http:
+            endpoint: 0.0.0.0:4318      # otlp http
+          grpc:
+            endpoint: 0.0.0.0:4317      # otlp grpc
+
+compactor:
+  compaction:
+    block_retention: 360h                # configure total trace retention here
+
+storage:
+  trace:
+    backend: local                     # backend configuration to use
+    wal:
+      path: /tmp/tempo/wal             # where to store the the wal locally
+    local:
+      path: /tmp/tempo/blocks
+
+usage_report:
+  reporting_enabled: false

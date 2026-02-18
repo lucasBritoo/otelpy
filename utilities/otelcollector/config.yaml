@@ -1,0 +1,81 @@
+# /tmp/otel-collector-config.yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317   #otlp grpc 
+      http:
+        endpoint: 0.0.0.0:4318  #otlp http
+    
+exporters:
+  # NOTE: Prior to v0.86.0 use `logging` instead of `debug`.
+  debug:
+    verbosity: detailed
+
+  otlphttp:
+    endpoint: "http://tempo-service:4318"
+
+  loki:
+    endpoint: http://loki-service:3100/loki/api/v1/push
+    default_labels_enabled:
+      exporter: false
+      job: false
+
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    send_timestamps: true
+    metric_expiration: 180m
+    enable_open_metrics: true
+    add_metric_suffixes: false
+    resource_to_telemetry_conversion:
+      enabled: true
+
+processors:
+  batch:
+
+  attributes:
+    actions:
+      - action: insert
+        key: loki.attribute.labels
+        value: service_name,severityText,traceID,spanID
+
+  resource:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name,severityText,traceID,spanID, service.namespace, service.version
+
+  filter/ottl:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["http.target"] == "/api/health"'
+        - 'name == "GET /api/health http send"'
+        - 'name == "GET /api/docs/ http send"'
+        - 'name == "GET /api/docs/"'
+        - 'name == "GET /api/openapi.json http send"'
+        - 'name == "GET /api/openapi.json"'
+    metrics:
+      datapoint:
+          - 'resource.attributes["http.target"] == "/api/health"'
+          - 'attributes["http.target"] == "/api/health"'
+          - 'attributes["http.target"] == "/api/openapi.json"'
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug, otlphttp]
+      processors: [batch,filter/ottl]
+    metrics:
+      receivers: [otlp]
+      exporters: [debug, prometheus]
+      processors: [batch,filter/ottl]
+    logs:
+      receivers: [otlp]
+      exporters: [debug, loki]
+      processors: [batch,attributes,resource]
