@@ -6,6 +6,13 @@
             "request": "launch",
             "module": "main",
             "cwd": "${workspaceFolder}/otelpy",
+        },
+        {
+            "name": "api",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "api",
+            "cwd": "${workspaceFolder}/examples/api"
         }
     ]
 }
